@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/Figus"; // Ajustá esta ruta según la carpeta de tu XAMPP
+const API_URL = "http://localhost/Figus"; // Ajustá esta ruta según la carpeta de tu XAMPP
 
 /**
  * 1. INICIAR SESIÓN
@@ -92,12 +92,11 @@ export async function actualizarFigurita(idFigurita, cantidad) {
  * 7. CREAR PROPUESTA DE INTERCAMBIO
  * Inicia una oferta entre el usuario activo (A) y otro usuario (B), especificando qué ofrece y qué pide.
  */
-export async function crearIntercambio(usuarioA, usuarioB, figA, figB) {
+export async function crearIntercambio(usuarioB, figOfrece, figPide) {
   const datos = new FormData();
-  datos.append("usuarioA", usuarioA);
   datos.append("usuarioB", usuarioB);
-  datos.append("figA", figA);
-  datos.append("figB", figB);
+  datos.append("figOfrece", figOfrece);
+  datos.append("figPide", figPide);
 
   const res = await fetch(`${API_URL}/crear_intercambio.php`, {
     method: "POST",
@@ -124,12 +123,9 @@ export async function listarIntercambios() {
  */
 export async function aceptarIntercambio(idIntercambio) {
   const datos = new FormData();
-  datos.append("id_intercambio", idIntercambio);
-
+  datos.append("id", idIntercambio);
   const res = await fetch(`${API_URL}/aceptar_intercambio.php`, {
-    method: "POST",
-    body: datos,
-    credentials: "include",
+    method: "POST", body: datos, credentials: "include",
   });
   return await res.json();
 }
@@ -138,13 +134,25 @@ export async function aceptarIntercambio(idIntercambio) {
  * 10. CANCELAR O RECHAZAR INTERCAMBIO
  * Elimina o cancela una propuesta pendiente de intercambio.
  */
-export async function cancelarIntercambio(idIntercambio) {
+export async function cancelarIntercambio(idIntercambio, idUsuario) {
   const datos = new FormData();
-  datos.append("id_intercambio", idIntercambio);
-
+  datos.append("id", idIntercambio);
+  datos.append("id_usuario", idUsuario);
   const res = await fetch(`${API_URL}/cancelar_intercambio.php`, {
-    method: "POST",
-    body: datos,
+    method: "POST", body: datos, credentials: "include",
+  });
+  return await res.json();
+}
+
+export async function figuritasDeUsuario(idUsuario) {
+  const res = await fetch(`${API_URL}/figuritas_de_usuario.php?id=${idUsuario}`, {
+    credentials: "include",
+  });
+  return await res.json();
+}
+
+export async function obtenerMatcheo() {
+  const res = await fetch(`${API_URL}/matcheo.php`, {
     credentials: "include",
   });
   return await res.json();

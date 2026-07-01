@@ -12,9 +12,17 @@ export function AuthProvider({ children }) {
     localStorage.setItem("cambiazzo_user", JSON.stringify(userData));
   };
 
-  const signOut = () => {
-    setUser(null);
-    localStorage.removeItem("cambiazzo_user");
+  const signOut = async () => {
+  try {
+    await fetch("http://localhost/Figus/logout.php", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (e) {
+    console.error("Error al cerrar sesión:", e);
+  }
+  setUser(null);
+  localStorage.removeItem("cambiazzo_user");
   };
 
   return (

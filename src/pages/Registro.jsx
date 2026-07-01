@@ -26,7 +26,7 @@ export default function Registro() {
     formData.append("contraseña", form.password);
 
     try {
-      const response = await fetch("http://localhost:8080/Figus/registro.php", {
+      const response = await fetch("http://localhost/Figus/registro.php", {
         method: "POST",
         body: formData, // Enviar como FormData
         credentials: "include", // Necesario para CORS

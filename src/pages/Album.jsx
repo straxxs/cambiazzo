@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAlbum } from "../context/AlbumContext";
 import { SPECIAL_SECTIONS, NATIONAL_TEAMS, generateStickers } from "../data/album";
 import { StickerCard } from "../components/ui/index";
@@ -9,7 +9,13 @@ const TODAS_LAS_SECCIONES = [
 ];
 
 export default function Album() {
-  const { stickers, cycleSticker, cargando } = useAlbum();
+  const { stickers, cycleSticker, cargando, recargarAlbum } = useAlbum();
+
+  // Refresca el álbum cada vez que entrás a esta página
+  useEffect(() => {
+    recargarAlbum();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (cargando) {
     return (

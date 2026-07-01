@@ -3,7 +3,7 @@ export default {
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080/Figus',
+        target: 'http://localhost/Figus',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

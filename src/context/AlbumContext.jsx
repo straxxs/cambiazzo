@@ -1,24 +1,37 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useAuth } from "./AuthContext";
 
 const AlbumContext = createContext();
 
 export function AlbumProvider({ children }) {
+  const { user } = useAuth();
   const [stickers, setStickers] = useState({});
-  const [cargando, setCargando] = useState(true); // 👈 adentro del componente
+  const [cargando, setCargando] = useState(true);
 
-  const API_URL = "http://localhost:8080/Figus/usuario_figuritas.php";
+  const API_URL = "http://localhost/Figus/usuario_figuritas.php";
 
-  useEffect(() => {
-    fetch(API_URL, { method: "GET", credentials: "include" })
+  // 👇 Extraemos la carga en una función reutilizable
+  const recargarAlbum = useCallback(() => {
+    if (!user) {
+      setStickers({});
+      setCargando(false);
+      return;
+    }
+
+    setCargando(true);
+    return fetch(API_URL, { method: "GET", credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setStickers(data.stickers);
-        }
+        setStickers(data.success ? data.stickers : {});
       })
       .catch((err) => console.error("Error:", err))
       .finally(() => setCargando(false));
-  }, []);
+  }, [user]);
+
+  // Se ejecuta al cambiar de usuario
+  useEffect(() => {
+    recargarAlbum();
+  }, [recargarAlbum]);
 
   const getStickerState = (code) => stickers[code] ?? 0;
 
@@ -38,7 +51,9 @@ export function AlbumProvider({ children }) {
   };
 
   return (
-    <AlbumContext.Provider value={{ stickers, getStickerState, cycleSticker, cargando }}>
+    <AlbumContext.Provider
+      value={{ stickers, getStickerState, cycleSticker, cargando, recargarAlbum }} // 👈 exportamos recargarAlbum
+    >
       {children}
     </AlbumContext.Provider>
   );

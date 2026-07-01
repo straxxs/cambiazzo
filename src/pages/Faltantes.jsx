@@ -59,7 +59,7 @@ export default function Faltantes() {
       <div className="mb-8">
         <h1 className="text-3xl font-black text-[#0F2D52] mb-1">Faltantes</h1>
         <p className="text-gray-500">
-          Te{" "}
+          Te Faltan{" "}
           <span className="font-bold text-[#DC2626]">
             {missing.length} figuritas
           </span>{" "}
