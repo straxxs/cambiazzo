@@ -112,12 +112,12 @@ export default function Intercambios() {
 
                 <div className="text-xs text-gray-500 mb-3 space-y-1">
                   <p>
-                    <span className="font-bold text-[#2D6BFF]">Le das:</span>{" "}
+                    <span className="font-bold text-[#2D6BFF]">Le puedes dar:</span>{" "}
                     {m.yoLeDoy.slice(0, 3).map((f) => f.code).join(", ") || "—"}
                     {m.yoLeDoy.length > 3 && ` +${m.yoLeDoy.length - 3}`}
                   </p>
                   <p>
-                    <span className="font-bold text-[#1faa80]">Te da:</span>{" "}
+                    <span className="font-bold text-[#1faa80]">Te puede dar:</span>{" "}
                     {m.elMeDa.slice(0, 3).map((f) => f.code).join(", ") || "—"}
                     {m.elMeDa.length > 3 && ` +${m.elMeDa.length - 3}`}
                   </p>
