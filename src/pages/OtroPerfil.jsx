@@ -15,11 +15,18 @@ export default function OtroPerfil() {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    fetch(`http://localhost/Figus/obtener_usuario.php?id=${id}`)
-      .then((r) => r.json()).then(setUsuario);
+  fetch(`http://localhost/Figus/obtener_usuario.php?id=${id}`)
+    .then((r) => r.json()).then(setUsuario);
 
-    figuritasDeUsuario(id).then((d) => d.success && setSusFigus(d.figuritas));
-    if (user) figuritasDeUsuario(user.id).then((d) => d.success && setMisFigus(d.figuritas));
+  // Lo que le pido: todo lo que él tiene
+  figuritasDeUsuario(id).then((d) => d.success && setSusFigus(d.figuritas));
+
+  // Lo que ofrezco: SOLO mis repetidas (cantidad >= 2)
+  if (user) figuritasDeUsuario(user.id).then((d) => {
+    if (d.success) {
+      setMisFigus(d.figuritas.filter((f) => f.repetida)); // 👈 solo repetidas
+    }
+  });
   }, [id, user]);
 
   const proponer = async () => {
@@ -39,19 +46,26 @@ export default function OtroPerfil() {
 
       <div className="grid sm:grid-cols-2 gap-6">
         {/* Lo que YO ofrezco */}
-        <div className="bg-white rounded-2xl border p-5">
-          <h3 className="font-bold text-[#0F2D52] mb-3">Ofrecés (tuyas)</h3>
+      <div className="bg-white rounded-2xl border p-5">
+        <h3 className="font-bold text-[#0F2D52] mb-3">Ofrecés (repetidas)</h3>
+        {misFigus.length === 0 ? (
+          <p className="text-sm text-gray-400">
+            No tenés figuritas repetidas para ofrecer. 
+            Marcá alguna como repetida (×2) en tu álbum.
+          </p>
+        ) : (
           <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto">
             {misFigus.map((f) => (
               <button key={f.id} onClick={() => setFigOfrece(f.id)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold border-2 ${
                   figOfrece === f.id ? "border-[#2D6BFF] bg-[#EEF3FF] text-[#2D6BFF]" : "border-gray-200 text-gray-500"
                 }`}>
-                {f.code}{f.repetida && " 🔄"}
+                {f.code} 🔄
               </button>
             ))}
           </div>
-        </div>
+        )}
+      </div>
 
         {/* Lo que le PIDO */}
         <div className="bg-white rounded-2xl border p-5">

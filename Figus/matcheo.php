@@ -81,18 +81,19 @@ while ($u = $usuarios->fetch_assoc()) {
 
     // ── Score de compatibilidad ──
     // Match ideal = min(cuántas le doy, cuántas me da) → intercambios posibles
+        // Intercambios MUTUOS posibles: mínimo entre lo que le doy y lo que me da
     $posibles = min(count($yoLeDoy), count($elMeDa));
-    $totalBeneficio = count($yoLeDoy) + count($elMeDa);
 
-    // Solo incluimos usuarios con los que hay ALGO para hacer
-    if ($totalBeneficio > 0) {
+    // 👇 SOLO incluimos si hay al menos UN intercambio 1x1 posible
+    // (vos le das algo Y él te da algo)
+    if ($posibles >= 1) {
         $resultado[] = [
-            "id"        => $otroId,
-            "nombre"    => $u["nombre"],
-            "yoLeDoy"   => $yoLeDoy,
-            "elMeDa"    => $elMeDa,
-            "posibles"  => $posibles,        // intercambios mutuos posibles
-            "score"     => $totalBeneficio,  // beneficio total
+            "id"       => $otroId,
+            "nombre"   => $u["nombre"],
+            "yoLeDoy"  => $yoLeDoy,
+            "elMeDa"   => $elMeDa,
+            "posibles" => $posibles,
+            "score"    => count($yoLeDoy) + count($elMeDa),
         ];
     }
 }

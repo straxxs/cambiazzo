@@ -1,7 +1,6 @@
 // src/data/album.js
-
 export const SPECIAL_SECTIONS = [
-  { id: "FWC", prefix: "FWC", name: "FIFA World Cup", count: 20, emoji: "🏆" },
+  { id: "FWC", prefix: "FWC", name: "FIFA World Cup", count: 20, emoji: "🏆", start: 0 },
 ];
 
 export const NATIONAL_TEAMS = [
@@ -55,9 +54,9 @@ export const NATIONAL_TEAMS = [
   { id: "UZB", prefix: "UZB", name: "Uzbekistán", flag: "🇺🇿" },
 ];
 
-export function generateStickers(prefix, count) {
+export function generateStickers(prefix, count, start = 1) {
   return Array.from({ length: count }, (_, i) => {
-    const numero = i + 1;
+    const numero = i + start;
     return {
       id: `${prefix}${numero}`,
       code: `${prefix}${numero}`,

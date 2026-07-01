@@ -30,13 +30,18 @@ if ($usuarioA == $usuarioB) {
 }
 
 // Validar: yo tengo la que ofrezco (repetida, cantidad >= 2 idealmente)
+// Validar: yo tengo la que ofrezco COMO REPETIDA (cantidad >= 2)
 $sql = "SELECT cantidad FROM usuariofigurita WHERE ID_Usuario = ? AND ID_Figurita = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ii", $usuarioA, $figOfrece);
 $stmt->execute();
 $r = $stmt->get_result()->fetch_assoc();
-if (!$r || (int)$r['cantidad'] < 1) {
-    echo json_encode(["success" => false, "mensaje" => "No tenés esa figurita para ofrecer"]);
+
+if (!$r || (int)$r['cantidad'] < 2) {   // 👈 antes era < 1, ahora < 2
+    echo json_encode([
+        "success" => false,
+        "mensaje" => "Solo podés ofrecer figuritas que tengas repetidas (×2)"
+    ]);
     exit;
 }
 

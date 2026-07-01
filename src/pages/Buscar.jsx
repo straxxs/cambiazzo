@@ -23,9 +23,9 @@ export default function Buscar() {
 
   // Convierte cantidad de intercambios en un % para el badge de compatibilidad
   const calcularScore = (m) => {
-    if (m.posibles >= 3) return 90;
-    if (m.posibles >= 1) return 60;
-    return 30;
+    if (m.posibles >= 3) return 90;  // Excelente
+    if (m.posibles >= 2) return 70;  // Muy bueno
+    return 55;                       // Bueno (1 intercambio mutuo)
   };
 
   return (

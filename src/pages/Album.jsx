@@ -35,7 +35,8 @@ export default function Album() {
             {seccion.emoji || seccion.flag} {seccion.name || seccion.nombre}
           </h2>
           <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
-            {generateStickers(seccion.prefix, 20).map((sticker) => (
+            {generateStickers(seccion.prefix, 20, seccion.start ?? 1).map((sticker) => (
+              //                                    
               <StickerCard
                 key={sticker.id}
                 code={sticker.code}

@@ -22,7 +22,7 @@ export default function Faltantes() {
   const missing = useMemo(() => {
     const result = [];
     ALL_SECTIONS.forEach((section) => {
-      const stickers = generateStickers(section.prefix, section.count);
+      const stickers = generateStickers(section.prefix, section.count, section.start ?? 1);
       stickers.forEach((s) => {
         if (getStickerState(s.code) === 0) {
           result.push({ ...s, section });

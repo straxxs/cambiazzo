@@ -14,7 +14,7 @@ export default function Dashboard() {
     if (!stickers || Object.keys(stickers).length === 0) return null;
     
     const values = Object.values(stickers);
-    const total = 994;
+    const total = 980;
     const owned = values.filter(v => v >= 1).length;
     const repeated = values.filter(v => v === 2).length;
     const missing = total - owned;
