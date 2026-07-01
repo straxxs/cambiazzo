@@ -15,92 +15,87 @@ if (!isset($_SESSION['id'])) {
 }
 
 $id_usuario = $_SESSION['id'];
-$id_intercambio = $_POST['id'] ?? $_POST['id_intercambio'] ?? null;
-
+$id_intercambio = $_POST['id'] ?? null;
 if (!$id_intercambio) {
-    echo json_encode(["success" => false, "mensaje" => "Falta el id del intercambio"]);
+    echo json_encode(["success" => false, "mensaje" => "Falta el id"]);
     exit;
 }
 
-// Traer el intercambio
 $stmt = $conn->prepare("SELECT * FROM intercambio WHERE ID = ?");
 $stmt->bind_param("i", $id_intercambio);
 $stmt->execute();
-$res = $stmt->get_result();
-if ($res->num_rows == 0) {
-    echo json_encode(["success" => false, "mensaje" => "Intercambio no encontrado"]);
-    exit;
-}
-$t = $res->fetch_assoc();
+$t = $stmt->get_result()->fetch_assoc();
+if (!$t) { echo json_encode(["success" => false, "mensaje" => "No encontrado"]); exit; }
 
-// Solo el receptor (B) puede aceptar
 if ($t['ID_UsuarioB'] != $id_usuario) {
-    echo json_encode(["success" => false, "mensaje" => "No podés aceptar un intercambio que no te propusieron"]);
+    echo json_encode(["success" => false, "mensaje" => "No podés aceptar esta oferta"]);
     exit;
 }
 if ($t['Estado'] !== 'Pendiente') {
-    echo json_encode(["success" => false, "mensaje" => "Este intercambio ya fue procesado"]);
+    echo json_encode(["success" => false, "mensaje" => "Ya fue procesado"]);
     exit;
 }
 
-$A = (int)$t['ID_UsuarioA'];   // ofrece figOfrece, recibe figPide
-$B = (int)$t['ID_UsuarioB'];   // recibe figOfrece, entrega figPide
-$figOfrece = (int)$t['ID_Figurita_Ofrece'];
-$figPide   = (int)$t['ID_Figurita_Pide'];
+$A = (int)$t['ID_UsuarioA'];
+$B = (int)$t['ID_UsuarioB'];
 
-// Función helper para restar una unidad (y borrar si llega a 0)
-function restar($conn, $usuario, $figu) {
-    $s = $conn->prepare("SELECT cantidad FROM usuariofigurita WHERE ID_Usuario = ? AND ID_Figurita = ?");
-    $s->bind_param("ii", $usuario, $figu);
-    $s->execute();
-    $row = $s->get_result()->fetch_assoc();
-    if (!$row || (int)$row['cantidad'] < 1) return false;
+// Traer las figuritas del detalle
+$d = $conn->prepare("SELECT ID_Figurita, Tipo FROM intercambio_detalle WHERE ID_Intercambio = ?");
+$d->bind_param("i", $id_intercambio);
+$d->execute();
+$dr = $d->get_result();
 
-    if ((int)$row['cantidad'] <= 1) {
-        $u = $conn->prepare("UPDATE usuariofigurita SET cantidad = 0 WHERE ID_Usuario = ? AND ID_Figurita = ?");
-    } else {
-        $u = $conn->prepare("UPDATE usuariofigurita SET cantidad = cantidad - 1 WHERE ID_Usuario = ? AND ID_Figurita = ?");
-    }
-    $u->bind_param("ii", $usuario, $figu);
-    return $u->execute();
+$ofrece = []; // las da A
+$pide = [];   // las da B
+while ($row = $dr->fetch_assoc()) {
+    if ($row["Tipo"] === "Ofrece") $ofrece[] = (int)$row["ID_Figurita"];
+    else $pide[] = (int)$row["ID_Figurita"];
 }
 
-// Función helper para sumar una unidad (o insertar)
-function sumar($conn, $usuario, $figu) {
+function tieneRepetida($conn, $u, $f) {
     $s = $conn->prepare("SELECT cantidad FROM usuariofigurita WHERE ID_Usuario = ? AND ID_Figurita = ?");
-    $s->bind_param("ii", $usuario, $figu);
+    $s->bind_param("ii", $u, $f);
     $s->execute();
-    $row = $s->get_result()->fetch_assoc();
-    if ($row) {
-        $u = $conn->prepare("UPDATE usuariofigurita SET cantidad = cantidad + 1 WHERE ID_Usuario = ? AND ID_Figurita = ?");
+    $r = $s->get_result()->fetch_assoc();
+    return $r && (int)$r['cantidad'] >= 2;
+}
+function restar($conn, $u, $f) {
+    $s = $conn->prepare("UPDATE usuariofigurita SET cantidad = cantidad - 1 WHERE ID_Usuario = ? AND ID_Figurita = ?");
+    $s->bind_param("ii", $u, $f);
+    return $s->execute();
+}
+function sumar($conn, $u, $f) {
+    $s = $conn->prepare("SELECT cantidad FROM usuariofigurita WHERE ID_Usuario = ? AND ID_Figurita = ?");
+    $s->bind_param("ii", $u, $f);
+    $s->execute();
+    if ($s->get_result()->fetch_assoc()) {
+        $x = $conn->prepare("UPDATE usuariofigurita SET cantidad = cantidad + 1 WHERE ID_Usuario = ? AND ID_Figurita = ?");
     } else {
-        $u = $conn->prepare("INSERT INTO usuariofigurita (ID_Usuario, ID_Figurita, cantidad) VALUES (?, ?, 1)");
+        $x = $conn->prepare("INSERT INTO usuariofigurita (ID_Usuario, ID_Figurita, cantidad) VALUES (?, ?, 1)");
     }
-    $u->bind_param("ii", $usuario, $figu);
-    return $u->execute();
+    $x->bind_param("ii", $u, $f);
+    return $x->execute();
 }
 
-// Validar que ambos tengan lo que corresponde
 $conn->begin_transaction();
 try {
-    // A da figOfrece a B
-    if (!restar($conn, $A, $figOfrece)) throw new Exception("El emisor ya no tiene la figurita que ofrece");
-    if (!restar($conn, $B, $figPide))   throw new Exception("Vos ya no tenés la figurita que te piden");
+    // Validar que ambos tengan repetidas todas las que entregan
+    foreach ($ofrece as $f) if (!tieneRepetida($conn, $A, $f)) throw new Exception("El emisor ya no tiene una repetida");
+    foreach ($pide as $f)   if (!tieneRepetida($conn, $B, $f)) throw new Exception("Ya no tenés una repetida requerida");
 
-    sumar($conn, $B, $figOfrece);
-    sumar($conn, $A, $figPide);
+    // Transferir: A da 'ofrece' a B; B da 'pide' a A
+    foreach ($ofrece as $f) { restar($conn, $A, $f); sumar($conn, $B, $f); }
+    foreach ($pide as $f)   { restar($conn, $B, $f); sumar($conn, $A, $f); }
 
-    // Marcar como aceptado
     $up = $conn->prepare("UPDATE intercambio SET Estado = 'Aceptado' WHERE ID = ?");
     $up->bind_param("i", $id_intercambio);
     $up->execute();
 
     $conn->commit();
-    echo json_encode(["success" => true, "mensaje" => "Intercambio realizado con éxito 🎉"]);
+    echo json_encode(["success" => true, "mensaje" => "Intercambio realizado 🎉"]);
 } catch (Exception $e) {
     $conn->rollback();
     echo json_encode(["success" => false, "mensaje" => $e->getMessage()]);
 }
-
 $conn->close();
 ?>

@@ -4,8 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
-  { to: "/", label: "Inicio" },
-  { to: "/album", label: "Mi Álbum" },
+  { to: "/", label: "Mi Álbum" },
   { to: "/faltantes", label: "Faltantes" },
   { to: "/buscar", label: "Buscar" },
   { to: "/intercambios", label: "Intercambios" },

@@ -92,19 +92,17 @@ export async function actualizarFigurita(idFigurita, cantidad) {
  * 7. CREAR PROPUESTA DE INTERCAMBIO
  * Inicia una oferta entre el usuario activo (A) y otro usuario (B), especificando qué ofrece y qué pide.
  */
-export async function crearIntercambio(usuarioB, figOfrece, figPide) {
-  const datos = new FormData();
-  datos.append("usuarioB", usuarioB);
-  datos.append("figOfrece", figOfrece);
-  datos.append("figPide", figPide);
-
+export async function crearIntercambio(usuarioB, ofrece, pide) {
+  // ofrece y pide son ARRAYS de IDs
   const res = await fetch(`${API_URL}/crear_intercambio.php`, {
     method: "POST",
-    body: datos,
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
+    body: JSON.stringify({ usuarioB, ofrece, pide }),
   });
   return await res.json();
 }
+
 
 /**
  * 8. LISTAR INTERCAMBIOS HISTÓRICOS Y ACTIVOS
