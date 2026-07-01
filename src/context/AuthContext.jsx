@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react"; // 👈 Agregamos 'React' acá
 
 const AuthContext = createContext(null);
 

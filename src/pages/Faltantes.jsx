@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useMemo } from "react";
 import { useAlbum } from "../context/AlbumContext";
 import { SPECIAL_SECTIONS, NATIONAL_TEAMS, generateStickers } from "../data/album";

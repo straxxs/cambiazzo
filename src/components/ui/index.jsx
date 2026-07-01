@@ -1,4 +1,5 @@
-// ProgressBar
+import React from "react";
+
 export function ProgressBar({ value, max = 100, color = "#2D6BFF", height = 8 }) {
   const pct = Math.min((value / max) * 100, 100);
   return (

@@ -2,25 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    color: #1a1a2e;
-    background-color: #ffffff;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-@layer utilities {
-  .font-black {
-    font-weight: 900;
-  }
+/* Opcional: Aplica la tipografía Inter y un fondo limpio por defecto */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc; /* un gris muy clarito de fondo */
+  color: #0f172a;            /* un color oscuro suave para los textos */
 }
