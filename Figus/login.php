@@ -4,8 +4,8 @@ header("Content-Type: application/json");
 
 include "conexion.php";
 
-$nombre = $_POST["usuario_nombre"] ?? "";
-$password = $_POST["password"] ?? "";
+$nombre = $_POST["usuario"] ?? "";
+$password = $_POST["contraseña"] ?? "";
 
 if ($nombre === "" || $password === "") {
     echo json_encode([
@@ -33,7 +33,7 @@ if ($resultado->num_rows === 0) {
 
 $usuario = $resultado->fetch_assoc();
 
-if(!password_verify($password, $usuario["password"])){
+if(!password_verify($password, $usuario["contraseña"])){
     echo json_encode([
         "success" => false,
         "mensaje" => "contraseña incorrecta"
@@ -45,8 +45,8 @@ echo json_encode([
     "success" => true,
     "mensaje" => "login exitoso",
     "usuario" => [
-        "id" => $usuario["usuario_id"],
-        "nombre" => $usuario["usuario_nombre"]
+        "id" => $usuario["ID"],
+        "nombre" => $usuario["nombre"]
     ]
 ]);
 ?>

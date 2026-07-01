@@ -1,15 +1,25 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+
+// Si el navegador solo está chequeando los permisos (Preflight), respondemos 200 y cortamos acá
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit(0);
+}
 session_start();
 header("Content-Type: application/json");
 include("conexion.php"); 
 
-if (!isset($_SESSION['usuario_id'])) {
+if (!isset($_SESSION['id'])) {
     echo json_encode(["success" => false, "mensaje" => "Tenés que iniciar sesión"]);
     exit;
 }
 
-$id_intercambio = $_POST['ID'] ?? null;
-$id_usuario = $_POST['usuario'] ?? null;
+$id_intercambio = $_POST['id'] ?? null;
+$id_usuario = $_POST['id_usuario'] ?? null;
 
 if (!$id_intercambio || !$id_usuario) {
     echo json_encode(["success" => false, "mensaje" => "Faltan datos de intercambio o usuario"]);
@@ -29,7 +39,6 @@ if ($resultado->num_rows == 0) {
 
 $intercambio = $resultado->fetch_assoc();
 
-// 4. Verificamos que el usuario que acepta sea el receptor (UsuarioB)
 if ($intercambio['ID_UsuarioB'] != $id_usuario) {
     echo json_encode(["success" => false, "mensaje" => "No podés aceptar un intercambio que no te propusieron a vos"]);
     exit;

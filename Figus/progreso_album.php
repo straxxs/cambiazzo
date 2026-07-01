@@ -1,11 +1,21 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+
+// Si el navegador solo está chequeando los permisos (Preflight), respondemos 200 y cortamos acá
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit(0);
+}
 
 session_start();
 header("Content-Type: application/json");
 
 include "conexion.php";
 
-if (!isset($_SESSION["usuario_id"])) {
+if (!isset($_SESSION["id"])) {
     echo json_encode([
         "success" => false,
         "mensaje" => "Debes iniciar sesión"
@@ -13,7 +23,7 @@ if (!isset($_SESSION["usuario_id"])) {
     exit;
 }
 
-$id_usuario = $_SESSION["usuario_id"];
+$id_usuario = $_SESSION["id"];
 
 $total_album = 980;
 

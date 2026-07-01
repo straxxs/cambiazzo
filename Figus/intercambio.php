@@ -1,4 +1,5 @@
 <?php
+
 include "conexion.php";
 
 $id_ofrece = $_POST["ID_UsuarioA"];
