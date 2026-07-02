@@ -66,6 +66,51 @@ export default function Intercambios() {
     return 30;
   };
 
+  const renderFiguritas = (valor, colorClass) => {
+    const extraerFiguritas = (input) => {
+      if (Array.isArray(input)) {
+        return input
+          .map((item) => {
+            if (typeof item === "string") return item;
+            if (item && typeof item === "object") return item.code || item.id || "";
+            return "";
+          })
+          .filter(Boolean);
+      }
+
+      if (typeof input === "string") {
+        const matches = input.match(/[A-Z]{3}\d+|FWC\d+/g) || [];
+        if (matches.length > 0) return matches;
+
+        return input
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      return [];
+    };
+
+    const figuritas = extraerFiguritas(valor);
+
+    if (figuritas.length === 0) {
+      return <span className="text-gray-400">—</span>;
+    }
+
+    return (
+      <div className="flex flex-wrap gap-1.5 mt-1">
+        {figuritas.map((fig, index) => (
+          <span
+            key={`${fig}-${index}`}
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${colorClass}`}
+          >
+            {fig}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   // Mostramos solo las mejores 3 recomendaciones
   const topMatches = matches.slice(0, 3);
 
@@ -152,12 +197,16 @@ export default function Intercambios() {
                         ? `Le propusiste a ${t.nombreB}`
                         : `${t.nombreA} te propuso`}
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Ofrece{" "}
-                      <span className="font-bold text-[#2D6BFF]">{t.ofrece}</span>
-                      {"  →  "}
-                      Pide <span className="font-bold text-[#38D9A9]">{t.pide}</span>
-                    </p>
+                    <div className="text-sm text-gray-500 mt-2 space-y-2">
+                      <div>
+                        <p className="font-bold text-[#2D6BFF] mb-1">Ofrece: </p>
+                        {renderFiguritas(t.ofrece, "bg-[#2D6BFF]/10 text-[#2D6BFF]")}
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#38D9A9] mb-1">Pide: </p>
+                        {renderFiguritas(t.pide, "bg-[#38D9A9]/10 text-[#1faa80]")}
+                      </div>
+                    </div>
                   </div>
                   {estadoBadge(t.estado)}
                 </div>
